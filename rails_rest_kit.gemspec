@@ -6,6 +6,6 @@ Gem::Specification.new do |s|
   s.authors     = ["Brandon Woodruff"]
   s.email       = "brandonwoodruff92@gmail.com"
   s.files       = ["lib/*"]
-  s.homepage    = "https://rubygems.org/gems/hola"
+  s.homepage    = "https://github.com/brandonwoodruff92/rails-rest-kit"
   s.license     = "MIT"
 end
