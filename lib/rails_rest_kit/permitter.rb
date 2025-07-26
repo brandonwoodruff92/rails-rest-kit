@@ -40,7 +40,7 @@ module RailsRestKit
         @required_keys.concat(keys.map(&:to_s))
       end
 
-      # Specify expected top-level keys (Rails 7+)
+      # Specify expected top-level keys
       def expect(*keys)
         @expected_keys.concat(keys.map(&:to_s))
       end
@@ -66,7 +66,7 @@ module RailsRestKit
 
         # Apply require and expect to params
         @required_keys.each { |key| filtered = filtered.require(key) }
-        @expected_keys.each { |key| filtered = filtered.expect(key) } if filtered.respond_to?(:expect)
+        @expected_keys.each { |key| filtered = filtered.expect(key) }
 
         permitted = filtered.permit(@attributes)
 
