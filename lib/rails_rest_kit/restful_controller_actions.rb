@@ -14,7 +14,7 @@ module RailsRestKit
 
     included do
       include RailsRestKit::Helpers::PermitterHelper
-      include RailsRestKit::Helper::ResourceHelper
+      include RailsRestKit::Helpers::ResourceHelper
 
       define_restful_actions_and_callbacks
     end
@@ -76,32 +76,34 @@ module RailsRestKit
     def default_destroy
     end
 
-    def self.define_restful_actions_and_callbacks
-      # Get RESTful routes for this controller
-      controller_routes = Rails.application.routes.routes.select do |route|
-        route.defaults[:controller] == controller_name && route.defaults[:action].in?(RESTFUL_ACTIONS.keys)
-      end
-      controller_routes.each do |route|
-        action = route.defaults[:action]
-        lifecycle_hooks = RESTFUL_ACTIONS[action]
-        # Define callbacks for the action
-        define_callbacks(action)
-        lifecycle_hooks.each do |hook|
-          define_callbacks("#{action}_#{hook}")
+    class_methods do
+      def define_restful_actions_and_callbacks
+        # Get RESTful routes for this controller
+        controller_routes = Rails.application.routes.routes.select do |route|
+          route.defaults[:controller] == controller_name && route.defaults[:action].in?(RESTFUL_ACTIONS.keys)
         end
-        %w[ before after around ].each do |callback|
-          define_singleton_method("#{callback}_#{action}") do |*args, &block|
-            set_callback(action, callback, &block)
-          end
+        controller_routes.each do |route|
+          action = route.defaults[:action]
+          lifecycle_hooks = RESTFUL_ACTIONS[action]
+          # Define callbacks for the action
+          define_callbacks(action)
           lifecycle_hooks.each do |hook|
-            define_singleton_method("#{callback}_#{action}_#{hook}") do |*args, &block|
+            define_callbacks("#{action}_#{hook}")
+          end
+          %w[ before after around ].each do |callback|
+            define_singleton_method("#{callback}_#{action}") do |*args, &block|
               set_callback(action, callback, &block)
             end
+            lifecycle_hooks.each do |hook|
+              define_singleton_method("#{callback}_#{action}_#{hook}") do |*args, &block|
+                set_callback(action, callback, &block)
+              end
+            end
           end
-        end
-        # Define the action method
-        define_method(action) do
-          send("default_#{action}")
+          # Define the action method
+          define_method(action) do
+            send("default_#{action}")
+          end
         end
       end
     end

@@ -1,0 +1,11 @@
+source "https://rubygems.org"
+
+gem "rails", "~> 7.0"
+gem "sqlite3", "~> 1.4"
+
+# Include your gem for testing
+gem "rails-rest-kit", path: "../.."
+
+group :development, :test do
+  gem "rspec-rails"
+end

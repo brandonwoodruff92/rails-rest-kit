@@ -1,5 +1,5 @@
 module RailsRestKit
-  module Helper
+  module Helpers
     module ResourceHelper
       extend ActiveSupport::Concern
 

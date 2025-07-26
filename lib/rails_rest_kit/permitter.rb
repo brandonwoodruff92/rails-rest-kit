@@ -18,7 +18,7 @@ module RailsRestKit
 
     # Permit parameters for a specific resource
     def permit(resource_name, params)
-      config = for(resource_name)
+      config = selffor(resource_name)
       raise ArgumentError, "No configuration found for resource: #{resource_name}" unless config
       
       config.permit(params)
@@ -32,6 +32,8 @@ module RailsRestKit
         @attributes = []
         @nested_attributes = {}
         @collections = {}
+        @required_keys = []
+        @expected_keys = []
         instance_eval(&block) if block_given?
       end
 

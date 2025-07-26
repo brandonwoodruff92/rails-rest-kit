@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.require_paths  = ["lib"]
   s.homepage       = "https://github.com/brandonwoodruff92/rails-rest-kit"
   s.license        = "MIT"
-  s.files          = Dir["{lib}/**/*"]
+  s.files          = Dir["{lib}/**/*", "MIT-LICENSE", "README.md"]
 
   s.required_ruby_version = ">= 2.7.0"
   s.add_dependency "rails", "~> 7.0", ">= 7.0.0"
@@ -18,4 +18,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "bundler", "~> 2.1"
   s.add_development_dependency "rake", "~> 13.0"
   s.add_development_dependency "rspec", "~> 3.0"
+  s.add_development_dependency "rspec-rails", "~> 6.1.0"
+  s.add_development_dependency "shoulda-matchers", "~> 5.1.0"
 end
