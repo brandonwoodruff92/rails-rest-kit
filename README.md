@@ -19,7 +19,7 @@ $ gem install rails-rest-kit
 ```
 
 ## Usage
-Include the `RailsRestKit::RestfulControllerActions` module in your controller. This will automatically provide callback hooks for your default REST actions (`index, show, new, create, edit, update, destroy`):
+Include the `RailsRestKit::RestfulControllerActions` module in your controller. Your controller will now be defined with all REST actions (`index, show, new, create, edit, update, destroy`), and perform typical CRUD behavior:
 
 ```ruby
 class UsersController < ApplicationController
@@ -27,7 +27,7 @@ class UsersController < ApplicationController
 end
 ```
 
-You can hook into a specific callback by defining callback blocks for each hook:
+If you need to add specific functionality outside your typical REST flow, you can hook into a specific REST action's callback by defining a callback block for each hook:
 
 ```ruby
 class UsersController < ApplicationController
