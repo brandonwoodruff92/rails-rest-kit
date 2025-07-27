@@ -17,11 +17,10 @@ module RailsRestKit
     end
 
     # Permit parameters for a specific resource
-    def permit(resource_name, params, required: false)
+    def permit(resource_name, params)
       config = self.for(resource_name)
       raise ArgumentError, "No configuration found for resource: #{resource_name}" unless config
-      
-      if required
+      if config.required
         resource_params = params.require(resource_name)
       else
         resource_params = params[resource_name] || params
@@ -31,13 +30,13 @@ module RailsRestKit
 
     # Configuration class for each resource
     class Configuration
-      attr_reader :attributes, :nested_attributes, :collections
+      attr_reader :attributes, :nested_attributes, :collections, :required
 
       def initialize(required: false, &block)
         @attributes = []
         @nested_attributes = {}
         @collections = {}
-        @required = false
+        @required = required
         instance_eval(&block) if block_given?
       end
 
@@ -62,15 +61,15 @@ module RailsRestKit
 
         # Handle nested attributes
         @nested_attributes.each do |nested_name, nested_config|
-          if permitted[nested_name].present?
-            permitted[nested_name] = nested_config.permit(filtered[nested_name])
+          if params[nested_name].present?
+            permitted[nested_name] = nested_config.permit(params[nested_name])
           end
         end
 
         # Handle collection attributes
         @collections.each do |collection_name, collection_config|
-          if permitted[collection_name].present?
-            permitted[collection_name] = permitted[collection_name].map do |item|
+          if params[collection_name].present?
+            permitted[collection_name] = params[collection_name].map do |item|
               collection_config.permit(item)
             end
           end

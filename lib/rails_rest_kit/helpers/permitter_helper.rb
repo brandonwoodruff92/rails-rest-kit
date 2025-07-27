@@ -16,26 +16,9 @@ module RailsRestKit
 
       private
 
-      def permit_params(resource_name, required: false)
-        self.class.permitter.permit(resource_name, params, required: required)
+      def permit_params(resource_name)
+        self.class.permitter.permit(resource_name, params)
       end
     end
   end
 end
-
-# permitter.configure :blog_post do
-#   require :blog_post
-#   attributes :title, :body
-#   nested :author do
-#     attributes :name, :email
-#     nested :profile do
-#       attributes :bio
-#     end
-#   end
-#   collection :comments do
-#     attributes :content
-#     nested :user do
-#       attributes :username
-#     end
-#   end
-# end
