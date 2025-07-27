@@ -1,5 +1,5 @@
-# RailsRestKit
-RailsRestKit is a comprehensive Rails gem that automates RESTful controller actions with built-in lifecycle callbacks and intelligent parameter permitting. It eliminates boilerplate code while providing a flexible, convention-over-configuration approach to building REST APIs.
+# Rails Rest Kit
+Rails Rest Kit is a comprehensive Rails gem that automates RESTful controller actions with built-in lifecycle callbacks and intelligent parameter permitting. It eliminates boilerplate code while providing a flexible, convention-over-configuration approach to building REST APIs.
 
 ## Installation
 Add this line to your application's Gemfile:
@@ -213,7 +213,7 @@ end
 You can see a detailed list of all helper methods here.
 
 ## Contributing
-Contribution directions go here.
+We welcome contributions to Rails Rest Kit!
 
 ## License
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
