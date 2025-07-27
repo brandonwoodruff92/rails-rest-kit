@@ -19,6 +19,9 @@ module RailsRestKit
           instance_variable_set("@#{model_slug.pluralize}", model_class.all) if !instance_variable_get("@#{model_slug.pluralize}")
           instance_variable_get("@#{model_slug.pluralize}")
         end
+
+        # Instance method aliases for class methods
+        delegate :model_name, :resource_name, :model_slug, :resource_slug, :model_class, :resource_class, to: :class
       end
 
       class_methods do

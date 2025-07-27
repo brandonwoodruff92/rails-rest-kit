@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   # Development dependencies
   s.add_development_dependency "bundler", "~> 2.1"
   s.add_development_dependency "rake", "~> 13.0"
-  s.add_development_dependency "rspec", "~> 3.0"
-  s.add_development_dependency "rspec-rails", "~> 6.1.0"
+  s.add_development_dependency "rspec", ">= 3.0"
+  s.add_development_dependency "rspec-rails", "~> 7.0.0"
   s.add_development_dependency "shoulda-matchers", "~> 5.1.0"
 end

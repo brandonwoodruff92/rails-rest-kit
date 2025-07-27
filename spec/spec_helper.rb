@@ -1,10 +1,10 @@
 require 'bundler/setup'
-require 'rspec'
 
 # Load the dummy app
 ENV['RAILS_ENV'] ||= 'test'
 require_relative 'dummy/config/environment'
-# require_relative '../lib/rails_rest_kit'
+
+require 'rspec/rails'
 
 # Configure RSpec
 RSpec.configure do |config|
@@ -16,6 +16,7 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
+  config.infer_spec_type_from_file_location!
   config.shared_context_metadata_behavior = :apply_to_host_groups
   config.filter_run_when_matching :focus
   config.disable_monkey_patching!

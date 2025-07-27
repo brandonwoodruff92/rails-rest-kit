@@ -1,9 +1,8 @@
 class UsersController < ApplicationController
   include RailsRestKit::RestfulControllerActions
 
-  permit_resource :user do
-    require :name
-    expect :email
+  permit_resource :user, required: true do
+    attributes :name, :email
     collection :posts do
       attributes :title, :content
     end

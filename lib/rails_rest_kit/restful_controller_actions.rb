@@ -74,33 +74,29 @@ module RailsRestKit
     end
 
     def default_destroy
+      resource = send("set_#{model_slug}")
+      run_callbacks(:destroy) do
+        resource.destroy
+      end
     end
 
     class_methods do
       def define_restful_actions_and_callbacks
-        # Get RESTful routes for this controller
-        controller_routes = Rails.application.routes.routes.select do |route|
-          route.defaults[:controller] == controller_name && route.defaults[:action].in?(RESTFUL_ACTIONS.keys)
-        end
-        controller_routes.each do |route|
-          action = route.defaults[:action]
-          lifecycle_hooks = RESTFUL_ACTIONS[action]
-          # Define callbacks for the action
+        RESTFUL_ACTIONS.each do |action, hooks|
           define_callbacks(action)
-          lifecycle_hooks.each do |hook|
+          hooks.each do |hook|
             define_callbacks("#{action}_#{hook}")
           end
-          %w[ before after around ].each do |callback|
+          %i[ before after around ].each do |callback|
             define_singleton_method("#{callback}_#{action}") do |*args, &block|
               set_callback(action, callback, &block)
             end
-            lifecycle_hooks.each do |hook|
+            hooks.each do |hook|
               define_singleton_method("#{callback}_#{action}_#{hook}") do |*args, &block|
-                set_callback(action, callback, &block)
+                set_callback("#{action}_#{hook}", callback, &block)
               end
             end
           end
-          # Define the action method
           define_method(action) do
             send("default_#{action}")
           end

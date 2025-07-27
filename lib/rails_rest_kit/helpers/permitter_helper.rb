@@ -9,15 +9,15 @@ module RailsRestKit
       end
 
       class_methods do
-        def permit_resource(resource_name, &block)
-          permitter.configure(resource_name, &block)
+        def permit_resource(resource_name, required: false, &block)
+          permitter.configure(resource_name, required: required, &block)
         end
       end
 
       private
 
-      def permit_params(resource_name)
-        self.class.permitter.permit(resource_name, params)
+      def permit_params(resource_name, required: false)
+        self.class.permitter.permit(resource_name, params, required: required)
       end
     end
   end

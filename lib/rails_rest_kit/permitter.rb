@@ -7,8 +7,8 @@ module RailsRestKit
     end
 
     # Configure permitted attributes for a resource
-    def configure(resource_name, &block)
-      configurations[resource_name.to_s] = Configuration.new(&block)
+    def configure(resource_name, required: false, &block)
+      configurations[resource_name.to_s] = Configuration.new(required: required, &block)
     end
 
     # Get configuration for a specific resource
@@ -17,34 +17,28 @@ module RailsRestKit
     end
 
     # Permit parameters for a specific resource
-    def permit(resource_name, params)
-      config = selffor(resource_name)
+    def permit(resource_name, params, required: false)
+      config = self.for(resource_name)
       raise ArgumentError, "No configuration found for resource: #{resource_name}" unless config
       
-      config.permit(params)
+      if required
+        resource_params = params.require(resource_name)
+      else
+        resource_params = params[resource_name] || params
+      end
+      config.permit(resource_params)
     end
 
     # Configuration class for each resource
     class Configuration
       attr_reader :attributes, :nested_attributes, :collections
 
-      def initialize(&block)
+      def initialize(required: false, &block)
         @attributes = []
         @nested_attributes = {}
         @collections = {}
-        @required_keys = []
-        @expected_keys = []
+        @required = false
         instance_eval(&block) if block_given?
-      end
-
-      # Specify required top-level keys
-      def require(*keys)
-        @required_keys.concat(keys.map(&:to_s))
-      end
-
-      # Specify expected top-level keys
-      def expect(*keys)
-        @expected_keys.concat(keys.map(&:to_s))
       end
 
       # Define basic attributes
@@ -64,25 +58,19 @@ module RailsRestKit
 
       # Permit parameters based on configuration
       def permit(params)
-        filtered = params
-
-        # Apply require and expect to params
-        @required_keys.each { |key| filtered = filtered.require(key) }
-        @expected_keys.each { |key| filtered = filtered.expect(key) }
-
-        permitted = filtered.permit(@attributes)
+        permitted = params.permit(@attributes)
 
         # Handle nested attributes
         @nested_attributes.each do |nested_name, nested_config|
-          if filtered[nested_name].present?
+          if permitted[nested_name].present?
             permitted[nested_name] = nested_config.permit(filtered[nested_name])
           end
         end
 
         # Handle collection attributes
         @collections.each do |collection_name, collection_config|
-          if filtered[collection_name].present?
-            permitted[collection_name] = filtered[collection_name].map do |item|
+          if permitted[collection_name].present?
+            permitted[collection_name] = permitted[collection_name].map do |item|
               collection_config.permit(item)
             end
           end

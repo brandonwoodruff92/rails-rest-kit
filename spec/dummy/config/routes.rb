@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
   resources :users
-  resources :posts, only: %i[ show ]
+  resources :posts
   root "users#index"
 end

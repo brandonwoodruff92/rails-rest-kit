@@ -7,5 +7,5 @@ gem "sqlite3", "~> 1.4"
 gem "rails-rest-kit", path: "../.."
 
 group :development, :test do
-  gem "rspec-rails"
+  gem "rspec-rails", "~> 7.0.0"
 end
