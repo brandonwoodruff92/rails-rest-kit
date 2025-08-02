@@ -44,6 +44,7 @@ RSpec.configure do |config|
     RailsRestKit.config.flash_defaults.create_invalid({})
     RailsRestKit.config.flash_defaults.update_valid({})
     RailsRestKit.config.flash_defaults.update_invalid({})
-    RailsRestKit.config.flash_defaults.destroy({})
+    RailsRestKit.config.flash_defaults.destroy_valid({})
+    RailsRestKit.config.flash_defaults.destroy_invalid({})
   end
 end

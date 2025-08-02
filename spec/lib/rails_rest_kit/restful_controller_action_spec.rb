@@ -184,13 +184,34 @@ RSpec.describe UsersController, type: :controller do
 
     before { user }
 
-    it "runs callbacks in the proper order" do
+    it "runs callbacks in the proper order when valid" do
       callback_order = []
       controller.class.before_destroy { callback_order << "before_destroy" }
+      controller.class.before_destroy_valid { callback_order << "before_destroy_valid" }
+      controller.class.before_destroy_invalid { callback_order << "before_destroy_invalid" }
       controller.class.after_destroy { callback_order << "after_destroy" }
+      controller.class.after_destroy_valid { callback_order << "after_destroy_valid" }
+      controller.class.after_destroy_invalid { callback_order << "after_destroy_invalid" }
       delete :destroy, params: { id: user.id }
       expect(flash[:notice]).to eq("User was successfully destroyed.")
-      expect(callback_order).to eq(["before_destroy", "after_destroy"])
+      expect(callback_order).to eq(["before_destroy", "before_destroy_valid", "after_destroy_valid", "after_destroy"])
+    end
+
+    it "runs callbacks in the proper order when invalid" do
+      allow_any_instance_of(User).to receive(:destroy) do |user|
+        user.errors.add(:base, "Cannot destroy user")
+        false
+      end
+      callback_order = []
+      controller.class.before_destroy { callback_order << "before_destroy" }
+      controller.class.before_destroy_valid { callback_order << "before_destroy_valid" }
+      controller.class.before_destroy_invalid { callback_order << "before_destroy_invalid" }
+      controller.class.after_destroy { callback_order << "after_destroy" }
+      controller.class.after_destroy_valid { callback_order << "after_destroy_valid" }
+      controller.class.after_destroy_invalid { callback_order << "after_destroy_invalid" }
+      delete :destroy, params: { id: user.id }
+      expect(flash[:alert]).to eq("User failed to be destroyed.")
+      expect(callback_order).to eq(["before_destroy", "before_destroy_invalid", "after_destroy_invalid", "after_destroy"])
     end
 
     it "destroys the user" do
@@ -200,11 +221,11 @@ RSpec.describe UsersController, type: :controller do
     end
 
     it "uses flash default overrides" do
-      RailsRestKit.config.flash_defaults.destroy(type: :alert, message: "Custom message")
+      RailsRestKit.config.flash_defaults.destroy_valid(type: :alert, message: "Custom message")
       delete :destroy, params: { id: user.id }
       expect(flash[:alert]).to eq("Custom message")
       expect(flash[:notice]).to be_nil
-      RailsRestKit.config.flash_defaults.destroy(type: :alert, message: -> (resource) { "Custom message 2" })
+      RailsRestKit.config.flash_defaults.destroy_valid(type: :alert, message: -> (resource) { "Custom message 2" })
       user = User.create!(name: "John Doe", email: "john.doe@example.com")
       delete :destroy, params: { id: user.id }
       expect(flash[:alert]).to eq("Custom message 2")

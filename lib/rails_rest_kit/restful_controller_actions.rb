@@ -9,7 +9,7 @@ module RailsRestKit
       create: %i[ valid invalid ],
       edit: %i[],
       update: %i[ valid invalid ],
-      destroy: %i[]
+      destroy: %i[ valid invalid ]
     }
 
     included do
@@ -80,8 +80,15 @@ module RailsRestKit
     def default_destroy
       resource = send("set_#{model_slug}")
       run_callbacks(:destroy) do
-        resource.destroy
-        flash_message :destroy, resource
+        if resource.destroy
+          run_callbacks(:destroy_valid) do
+            flash_message :destroy_valid, resource
+          end
+        else
+          run_callbacks(:destroy_invalid) do
+            flash_message :destroy_invalid, resource
+          end
+        end
       end
     end
 
