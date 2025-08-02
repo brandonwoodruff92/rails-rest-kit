@@ -45,9 +45,11 @@ module RailsRestKit
       run_callbacks(:create) do
         if resource.save
           run_callbacks(:create_valid) do
+            flash_message :create_valid, resource
           end
         else
           run_callbacks(:create_invalid) do
+            flash_message :create_invalid, resource
           end
         end
       end
@@ -65,9 +67,11 @@ module RailsRestKit
       run_callbacks(:update) do
         if resource.save
           run_callbacks(:update_valid) do
+            flash_message :update_valid, resource
           end
         else
           run_callbacks(:update_invalid) do
+            flash_message :update_invalid, resource
           end
         end
       end
@@ -77,7 +81,14 @@ module RailsRestKit
       resource = send("set_#{model_slug}")
       run_callbacks(:destroy) do
         resource.destroy
+        flash_message :destroy, resource
       end
+    end
+
+    def flash_message(key, resource)
+      flash_default = RailsRestKit.config.flash_defaults[key]
+      message = flash_default.message(resource)
+      flash[flash_default.flash_type] = message
     end
 
     class_methods do

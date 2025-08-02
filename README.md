@@ -18,6 +18,20 @@ Or install it yourself as:
 $ gem install rails-rest-kit
 ```
 
+## Configuration
+Configure default flash messages:
+```ruby
+RailsRestKit.configure do |config|
+  config.flash_defaults.create_valid(flash_type: :alert, message: "Successfully created!")
+end
+```
+You can also configure the flash message with a block:
+```ruby
+RailsRestKit.configure do |config|
+  config.flash_defaults.create_valid(flash_type: :alert, message: -> (resource) { "#{resource.model_name} successfully created!" })
+end
+```
+
 ## Usage
 Include the `RailsRestKit::RestfulControllerActions` module in your controller. Your controller will now be defined with all REST actions (`index, show, new, create, edit, update, destroy`), and perform typical CRUD behavior:
 
