@@ -1,4 +1,5 @@
 require "rails_rest_kit/version"
+require "rails_rest_kit/configuration"
 require "rails_rest_kit/helpers/resource_helper"
 require "rails_rest_kit/helpers/permitter_helper"
 require "rails_rest_kit/restful_controller_actions"

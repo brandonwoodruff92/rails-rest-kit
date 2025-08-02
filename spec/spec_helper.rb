@@ -39,5 +39,11 @@ RSpec.configure do |config|
     # Clean up data after each test
     User.delete_all
     Post.delete_all
+    # Reset flash defaults after each test
+    RailsRestKit.config.flash_defaults.create_valid({})
+    RailsRestKit.config.flash_defaults.create_invalid({})
+    RailsRestKit.config.flash_defaults.update_valid({})
+    RailsRestKit.config.flash_defaults.update_invalid({})
+    RailsRestKit.config.flash_defaults.destroy({})
   end
 end
