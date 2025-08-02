@@ -71,6 +71,7 @@ RSpec.describe UsersController, type: :controller do
       controller.class.after_create_valid { callback_order << "after_create_valid" }
       controller.class.after_create_invalid { callback_order << "after_create_invalid" }
       post :create, params: { user: { name: "John Doe", email: "john.doe@example.com" } }
+      expect(flash[:notice]).to eq("User was successfully created.")
       expect(callback_order).to eq(["before_create", "before_create_valid", "after_create_valid", "after_create"])
     end
 
@@ -83,7 +84,19 @@ RSpec.describe UsersController, type: :controller do
       controller.class.after_create_valid { callback_order << "after_create_valid" }
       controller.class.after_create_invalid { callback_order << "after_create_invalid" }
       post :create, params: { user: {} }
+      expect(flash[:alert]).to eq("User failed to be created.")
       expect(callback_order).to eq(["before_create", "before_create_invalid", "after_create_invalid", "after_create"])
+    end
+
+    it "uses flash default overrides" do
+      RailsRestKit.config.flash_defaults.create_valid(type: :alert, message: "Custom message")
+      post :create, params: { user: { name: "John Doe", email: "john.doe@example.com" } }
+      expect(flash[:alert]).to eq("Custom message")
+      expect(flash[:notice]).to be_nil
+      RailsRestKit.config.flash_defaults.create_valid(type: :alert, message: -> (resource) { "Custom message 2" })
+      post :create, params: { user: { name: "Jane Doe", email: "jane.doe@example.com" } }
+      expect(flash[:alert]).to eq("Custom message 2")
+      expect(flash[:notice]).to be_nil
     end
 
     it "sets the user instance variable" do
@@ -129,6 +142,7 @@ RSpec.describe UsersController, type: :controller do
       controller.class.after_update_valid { callback_order << "after_update_valid" }
       controller.class.after_update_invalid { callback_order << "after_update_invalid" }
       put :update, params: { id: user.id, user: { name: "Jane Doe", email: "jane.doe@example.com" } }
+      expect(flash[:notice]).to eq("User was successfully updated.")
       expect(callback_order).to eq(["before_update", "before_update_valid", "after_update_valid", "after_update"])
     end
 
@@ -141,7 +155,19 @@ RSpec.describe UsersController, type: :controller do
       controller.class.after_update_valid { callback_order << "after_update_valid" }
       controller.class.after_update_invalid { callback_order << "after_update_invalid" }
       put :update, params: { id: user.id, user: { name: nil } }
+      expect(flash[:alert]).to eq("User failed to be updated.")
       expect(callback_order).to eq(["before_update", "before_update_invalid", "after_update_invalid", "after_update"])
+    end
+
+    it "uses flash default overrides" do
+      RailsRestKit.config.flash_defaults.update_valid(type: :alert, message: "Custom message")
+      put :update, params: { id: user.id, user: { name: "Test" } }
+      expect(flash[:alert]).to eq("Custom message")
+      expect(flash[:notice]).to be_nil
+      RailsRestKit.config.flash_defaults.update_valid(type: :alert, message: -> (resource) { "Custom message 2" })
+      put :update, params: { id: user.id, user: { name: "Test 2" } }
+      expect(flash[:alert]).to eq("Custom message 2")
+      expect(flash[:notice]).to be_nil
     end
 
     it "sets the user instance variable" do
@@ -158,18 +184,52 @@ RSpec.describe UsersController, type: :controller do
 
     before { user }
 
-    it "runs callbacks in the proper order" do
+    it "runs callbacks in the proper order when valid" do
       callback_order = []
       controller.class.before_destroy { callback_order << "before_destroy" }
+      controller.class.before_destroy_valid { callback_order << "before_destroy_valid" }
+      controller.class.before_destroy_invalid { callback_order << "before_destroy_invalid" }
       controller.class.after_destroy { callback_order << "after_destroy" }
+      controller.class.after_destroy_valid { callback_order << "after_destroy_valid" }
+      controller.class.after_destroy_invalid { callback_order << "after_destroy_invalid" }
       delete :destroy, params: { id: user.id }
-      expect(callback_order).to eq(["before_destroy", "after_destroy"])
+      expect(flash[:notice]).to eq("User was successfully destroyed.")
+      expect(callback_order).to eq(["before_destroy", "before_destroy_valid", "after_destroy_valid", "after_destroy"])
+    end
+
+    it "runs callbacks in the proper order when invalid" do
+      allow_any_instance_of(User).to receive(:destroy) do |user|
+        user.errors.add(:base, "Cannot destroy user")
+        false
+      end
+      callback_order = []
+      controller.class.before_destroy { callback_order << "before_destroy" }
+      controller.class.before_destroy_valid { callback_order << "before_destroy_valid" }
+      controller.class.before_destroy_invalid { callback_order << "before_destroy_invalid" }
+      controller.class.after_destroy { callback_order << "after_destroy" }
+      controller.class.after_destroy_valid { callback_order << "after_destroy_valid" }
+      controller.class.after_destroy_invalid { callback_order << "after_destroy_invalid" }
+      delete :destroy, params: { id: user.id }
+      expect(flash[:alert]).to eq("User failed to be destroyed.")
+      expect(callback_order).to eq(["before_destroy", "before_destroy_invalid", "after_destroy_invalid", "after_destroy"])
     end
 
     it "destroys the user" do
       expect {
         delete :destroy, params: { id: user.id }
       }.to change(User, :count).by(-1)
+    end
+
+    it "uses flash default overrides" do
+      RailsRestKit.config.flash_defaults.destroy_valid(type: :alert, message: "Custom message")
+      delete :destroy, params: { id: user.id }
+      expect(flash[:alert]).to eq("Custom message")
+      expect(flash[:notice]).to be_nil
+      RailsRestKit.config.flash_defaults.destroy_valid(type: :alert, message: -> (resource) { "Custom message 2" })
+      user = User.create!(name: "John Doe", email: "john.doe@example.com")
+      delete :destroy, params: { id: user.id }
+      expect(flash[:alert]).to eq("Custom message 2")
+      expect(flash[:notice]).to be_nil
     end
 
     it "sets the user instance variable" do
